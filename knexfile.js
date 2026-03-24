@@ -1,8 +1,18 @@
 require('dotenv').config();
 
+const common = {
+  client: 'pg',
+  migrations: {
+    directory: './src/migrations',
+  },
+  seeds: {
+    directory: './src/seeds',
+  },
+};
+
 module.exports = {
   development: {
-    client: 'pg',
+    ...common,
     connection: process.env.DATABASE_URL
       ? {
           connectionString: process.env.DATABASE_URL,
@@ -10,16 +20,18 @@ module.exports = {
         }
       : {
           host: process.env.DB_HOST || 'localhost',
-          port: process.env.DB_PORT || 5432,
+          port: Number(process.env.DB_PORT) || 5432,
           user: process.env.DB_USER || 'postgres',
-          password: process.env.DB_PASSWORD || 'Nishamani@#098',
+          password: process.env.DB_PASSWORD, // no hardcoded password
           database: process.env.DB_NAME || 'vaccination_census',
         },
-    migrations: {
-      directory: './src/migrations',
-    },
-    seeds: {
-      directory: './src/seeds',
+  },
+
+  production: {
+    ...common,
+    connection: {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
     },
   },
 };
