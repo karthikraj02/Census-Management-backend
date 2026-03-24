@@ -7,7 +7,7 @@ const censusRoutes = require('./routes/census');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Allowed origins (multiple support)
+// ✅ Allowed origins
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map((s) => s.trim())
@@ -20,16 +20,20 @@ app.use(cors({
 
     if (
       allowedOrigins.includes(origin) ||
-      (allowedOrigins.length === 0 && origin === 'http://localhost:5173')
+      (allowedOrigins.length === 0 &&
+        (origin === 'http://localhost:5173' || origin === 'http://127.0.0.1:5173'))
     ) {
       return cb(null, true);
     }
 
-    return cb(new Error(`CORS blocked for origin: ${origin}`));
+    return cb(null, false); // safer than throwing error
   },
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
 }));
+
+// ✅ Handle preflight
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());
